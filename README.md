@@ -293,6 +293,25 @@ mvn spring-boot:run
 - Mobile monitoring view
 - API interface integration
 
+## ❓ FAQ
+
+### Q: Can RPA be deployed and run in an offline intranet environment? How to import images?
+
+**A:** ✅ **Yes!**
+In an offline environment, you need to export the image package using `docker save` in an internet-connected environment, and import it into the intranet using `docker load`. After importing, please check if the image Tag is complete using `docker images`. If an unnamed (dangling) image appears, use `docker tag` to retag it.
+
+### Q: When building the client locally (`build.bat`), do dependencies like `pywinhook`, `psycopg2` fail to install?
+
+**A:**
+1. **C++ Build Environment**: Ensure Microsoft Visual C++ 14.0 or higher is installed (including MSVC v143 and Win10/11 SDK).
+2. **Permission Issues**: Please run the build script with Administrator privileges.
+3. **Dependency Trimming**: If specific database drivers (like Oracle/PostgreSQL) are not needed for your current scenario, you can modify `/engine/components/astronverse-database/pyproject.toml` to remove dependencies like `psycopg2` and `cx-oracle` to bypass complex local compilation.
+
+### Q: Does the open-source version of RPA support frontend-backend separated deployment for secondary development and debugging?
+
+**A:** ✅ **Yes!**
+The frontend-backend separated mode is fully supported and recommended in development and debugging scenarios. It allows independent running and debugging of frontend and backend code. Please ensure you pull the latest code for configuration.
+
 ## 📚 Documentation
 
 - [📖 User Guide](HOW_TO_RUN.md)

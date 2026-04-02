@@ -293,6 +293,25 @@ mvn spring-boot:run
 - 移动端监控查看
 - API 接口集成
 
+## ❓ 常见问题 (FAQ)
+
+### Q: 离线内网环境下可以部署和运行 RPA 吗？如何导入镜像？
+
+**A:** ✅ **可以！**
+在离线环境下，需要在有网环境使用 `docker save` 导出镜像包，并在内网使用 `docker load` 导入。导入后请使用 `docker images` 检查镜像 Tag 是否完整，如果出现无名称（dangling）镜像，请使用 `docker tag` 重新打标签。
+
+### Q: 本地构建客户端 (`build.bat`) 时，安装 `pywinhook`、`psycopg2` 等依赖报错失败？
+
+**A:**
+1. **C++ 编译环境**：确保已安装 Microsoft Visual C++ 14.0 或更高版本（包含 MSVC v143 和 Win10/11 SDK）。
+2. **权限问题**：请使用管理员权限（Administrator）运行构建脚本。
+3. **依赖裁剪**：如果当前场景不需要特定数据库驱动（如 Oracle/PostgreSQL），可以修改 `/engine/components/astronverse-database/pyproject.toml`，移除 `psycopg2` 和 `cx-oracle` 等依赖，以绕过复杂的本地编译。
+
+### Q: 开源版 RPA 支持前后端分离部署以便于二次开发调试吗？
+
+**A:** ✅ **支持！**
+前后端分离模式在开发调试场景下是完全支持且推荐的，可以独立运行和调试前端与后端代码。请确保拉取最新代码进行配置。
+
 ## 📚 文档链接
 
 - [📖 使用指南](HOW_TO_RUN.zh.md)
