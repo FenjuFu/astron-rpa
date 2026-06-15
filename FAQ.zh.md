@@ -432,6 +432,26 @@ trusted-host = mirrors.aliyun.com
 
 **A:** 可以。在流程设计器中支持添加注释功能。
 
+### Q: 🆕 星辰 RPA 有控制台吗？开源版开发的流程能被控制台统一调度吗？
+
+**A:** 星辰 RPA 有控制台，但控制台目前**未开源**。开源版本中设计开发的流程目前只能在本地客户端执行，无法由控制台统一调度。
+
+### Q: 🆕 Astron RPA 能操作微信 / 企业微信的界面元素吗？
+
+**A:**
+- 旧版微信（如 3.9）可以使用**元素识别**。
+- 新版微信、新版企业微信只能使用**图像识别（CV）** 进行操作。
+
+### Q: 🆕 Astron Agent 如何与 Astron RPA 集成？相比 browser-use 类工具有什么优势？
+
+**A:** Astron Agent 可以调用在 Astron RPA 中编排好的 RPA 脚本。相比 browser-use 类的 MCP 工具，RPA 在准确性、执行效率、Token 消耗等方面都有明显优势。
+
+### Q: 🆕 开源版 RPA 中 dify 流程的 URL 写死成官网了，如何改成自己的？LLM 怎么配置？
+
+**A:**
+- 开源版部分版本将 dify 流程的 URL 写死为官网地址。如需指向自部署服务，可进入 `openapi-service` 容器中修改对应的 Python 代码，将链接改为自己的地址（请以当前版本实际代码为准）。
+- LLM 在服务端 `.env` 中配置（`AICHAT_BASE_URL`、`AICHAT_API_KEY`）。
+
 ---
 
 ## 🐛 故障排查
@@ -497,6 +517,14 @@ docker logs [container_name] > logs.txt
 ### Q: 客户端程序一直在死循环或报错？
 
 **A:** 检查 `data/logs/picker` 或 `robot-service` 的日志。有时需要清理本地缓存数据（删除 `data` 目录）后重试。
+
+### Q: 🆕 客户端「设置 → 插件安装」页面显示空白？
+
+**A:** 这是已知 BUG。可手动安装浏览器插件，插件目录位于：
+
+```
+C:\Users\{用户名}\AppData\Roaming\astron-rpa\python_core\Lib\site-packages\astronverse\browser_plugin\plugins
+```
 
 ### Q: 服务端 Redis 容器一直重启？
 
