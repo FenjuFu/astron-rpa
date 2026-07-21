@@ -68,6 +68,29 @@ In an offline environment, you need to export image packages using `docker save`
 **A:** ✅ **Yes!**
 The front-end and back-end separate mode is fully supported and recommended for development and debugging scenarios. You can independently run and debug front-end and back-end code. Please make sure to pull the latest code for configuration.
 
+### Q: 🆕 Can the client be installed on a cloud desktop / virtual machine?
+
+**A:** ✅ **Yes.** A large part of our own testing runs on cloud desktop environments (e.g. Tencent Cloud Desktop).
+
+Things to watch out for:
+- **OS build**: Windows 10 1809 or later is recommended. Older builds may hang at login or render the UI incorrectly.
+- **Works locally but not on the cloud host**, check in this order:
+  1. Confirm the cloud host meets the OS requirement above;
+  2. Collect client logs from `%APPDATA%\astron-rpa\logs` (or `data\logs` under the install directory);
+  3. Empty logs usually mean the process never started — report the OS build and the installation method in an issue or in the community group.
+
+### Q: 🆕 Manual client build fails with `Cannot compute electron version from installed node modules`?
+
+**A:** This error comes from the `electron-builder install-app-deps` step and means the Electron dependencies under `packages/electron-app` are incomplete. It is usually an environment problem rather than a code problem.
+
+**Checklist:**
+1. **Make sure pnpm is installed and on PATH** (most common cause): `pnpm --version` should print a version. If pnpm is installed but not on PATH, the build script exits immediately or fails midway.
+2. **Node.js >= 22 and pnpm >= 9** are required — see [`BUILD_GUIDE.md`](./BUILD_GUIDE.md).
+3. **Install dependencies before building**: make sure the frontend dependency installation step finished successfully.
+4. Building the client does **not** require Java or Docker — missing those does not affect the client build.
+
+> 💡 If double-clicking the build script makes the window flash and disappear, run `./build.bat -p xxx -s xxx` from a terminal in the project root so you can read the full error.
+
 ---
 
 ## 👥 Client Related
@@ -432,6 +455,18 @@ In an environment without external network access, normal `pip install` or offli
 
 **A:** Yes. The workflow designer supports adding comments.
 
+### Q: 🆕 How do teams keep workflow versions consistent when several people edit the same process? Is there Git-style merging?
+
+**A:** There is **no Git-style branch merging** today, but the built-in mechanisms let a team stay consistent:
+
+1. **Workflow version management**: publish new versions, roll back to a previous one, and diff changes at publish time, so you avoid "one version per laptop".
+2. **Centralized distribution**: publish the stable, tested process and let the whole team fetch and run it from one place instead of copying local files around.
+3. **Collaboration conventions**: avoid concurrent edits on the same process; split large processes into components/sub-workflows so people can own separate modules.
+
+### Q: 🆕 Where is the source code for Go binaries such as `route.exe`?
+
+**A:** Some Go components live on the `dev` branch — switch to that branch to find them. If you cannot locate the directory on `main`, check your current branch first.
+
 ---
 
 ## 🐛 Troubleshooting
@@ -505,6 +540,27 @@ There may be a startup script compatibility issue in the image (e.g., missing ba
 **Solutions:** 
 1. Try changing `bash` to `sh` in the startup command.
 2. Or pull the latest `latest` image, which usually has this issue fixed.
+
+### Q: 🆕 A scheduled task did not fire at its scheduled time?
+
+**A:** First separate "the task never fired" from "it fired but the run failed" — the logs look different.
+
+**1. Collect logs** (required for diagnosis):
+```bash
+# Archive this directory and attach it to your report
+%APPDATA%\astron-rpa\logs
+```
+
+**2. Common cause: a very short misfire grace window**
+Scheduled tasks run on an APScheduler cron trigger, whose default misfire tolerance is very short (about 1 second). When the machine is under load, waking from sleep, or losing its time slice, that window can be missed and the run is skipped as a misfire. This is why a task "worked for days and then silently skipped one night".
+
+**3. Mitigations you can apply now:**
+- Switch to an **advanced cron expression**, which is more expressive and more predictable;
+- Avoid on-the-hour / on-the-minute peaks and stagger multiple tasks;
+- Make sure the machine is not locked, asleep, or running with the client closed during the scheduled window;
+- With multiple scheduled tasks, check whether all of them or only one failed to fire — that quickly separates a scheduler problem from a single-task configuration problem.
+
+**4. When reporting**: attach the logs, a screenshot of the task configuration, and the exact timestamps that fired vs. did not fire.
 
 ---
 
