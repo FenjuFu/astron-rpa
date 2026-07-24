@@ -5,6 +5,9 @@
 ![AstronRPA Logo](./docs/images/icon_128px.png)
 
 **🤖 首个完整开源的企业级RPA桌面应用**
+
+<a href="https://trendshift.io/repositories/17279?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-17279" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/17279" alt="iflytek%2Fastron-rpa | Trendshift" width="250" height="55"/></a>
+
 <p align="center">
   <a href="https://www.iflyrpa.com">星辰RPA官网</a> ·
   <a href="./BUILD_GUIDE.zh.md">部署文档</a> ·
