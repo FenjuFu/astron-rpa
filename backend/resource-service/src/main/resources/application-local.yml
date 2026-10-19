@@ -101,6 +101,10 @@ file:
   maxFileSize: 52428800 # 50MB
   maxShareSize: 104857600 # 100MB
 
+# 认证服务，用于解析当前登录用户与租户（文件按租户隔离）
+auth:
+  base-url: http://rpa-opensource-rpa-auth:10251
+
 
 
 

@@ -3147,8 +3147,21 @@ table "file" {
     type    = varchar(1000)
     comment = "文件真实名称"
   }
+  column "tenant_id" {
+    null    = true
+    type    = char(36)
+    comment = "租户id"
+  }
+  column "creator_id" {
+    null    = true
+    type    = char(36)
+    comment = "上传者id"
+  }
   primary_key {
     columns = [column.id]
+  }
+  index "idx_file_id_tenant_id" {
+    columns = [column.file_id, column.tenant_id]
   }
 }
 table "his_base" {

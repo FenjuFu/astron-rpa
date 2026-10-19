@@ -3,6 +3,7 @@ package com.iflytek.rpa.resource.file.service.impl;
 import static software.amazon.awssdk.core.sync.RequestBody.fromBytes;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.iflytek.rpa.resource.common.auth.RpaAuthClient;
 import com.iflytek.rpa.resource.common.exp.ServiceException;
 import com.iflytek.rpa.resource.common.response.AppResponse;
 import com.iflytek.rpa.resource.common.response.ErrorCodeEnum;
@@ -49,12 +50,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private RpaAuthClient rpaAuthClient;
+
     @Override
     public AppResponse<Boolean> downloadFile(String fileId) throws IOException {
-        // 1. 查询数据库获取文件信息
-
-        File file = baseMapper.getFile(fileId);
+        // 1. 查询数据库获取文件信息，仅允许下载当前租户的文件
+        String tenantId = rpaAuthClient.getCurrentTenantId();
+        File file = baseMapper.getFile(fileId, tenantId);
         if (file == null) {
+            // 文件不存在与不属于当前租户返回相同错误，避免泄露其他租户的文件ID是否存在
             throw new ServiceException(ErrorCodeEnum.E_SQL_EMPTY.getCode());
         }
 
@@ -123,6 +128,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     @Override
     public AppResponse<String> uploadFile(MultipartFile file) throws IOException {
 
+        // 0. 获取文件归属的租户与上传者，未登录时不写入S3
+        String tenantId = rpaAuthClient.getCurrentTenantId();
+        String creatorId = rpaAuthClient.getCurrentUserId();
+
         // 1. 获取原始文件名并URL解码
         String originalFileName = file.getOriginalFilename();
 
@@ -142,7 +151,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         uploadFileToS3(file.getBytes(), targetPath);
 
         // 5. 保存文件信息到数据库
-        saveFileInfo(fileId, targetPath, decodedFileName);
+        saveFileInfo(fileId, targetPath, decodedFileName, tenantId, creatorId);
 
         return AppResponse.success(fileId);
     }
@@ -199,12 +208,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
      * @param fileId     文件ID
      * @param targetPath 目标路径
      * @param fileName   文件名
+     * @param tenantId   租户ID
+     * @param creatorId  上传者ID
      */
-    private void saveFileInfo(String fileId, String targetPath, String fileName) {
+    private void saveFileInfo(String fileId, String targetPath, String fileName, String tenantId, String creatorId) {
         File file = new File();
         file.setFileId(fileId);
         file.setPath(targetPath);
         file.setFileName(fileName);
+        file.setTenantId(tenantId);
+        file.setCreatorId(creatorId);
         file.setCreateTime(new Date());
         file.setUpdateTime(new Date());
 
