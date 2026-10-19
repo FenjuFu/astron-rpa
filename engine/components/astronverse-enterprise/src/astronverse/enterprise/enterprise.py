@@ -87,7 +87,7 @@ class Enterprise:
     )
     def upload_to_sharefolder(file_path: PATH = ""):
         """Upload file to shared folder"""
-        upload_url = "http://127.0.0.1:{}/api/resource/file/shared-file-upload".format(
+        upload_url = "http://127.0.0.1:{}/api/resource/file/share-file-upload".format(
             atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
         )
         update_info_url = "http://127.0.0.1:{}/api/robot/robot-shared-file/addSharedFileInfo".format(
@@ -119,7 +119,7 @@ class Enterprise:
                             "可能用了不支持的扩展名！",
                         )
                     info_data = {
-                        "fileId": inner_data.get("data").get("fileid"),
+                        "fileId": inner_data.get("data").get("fileId"),
                         "fileType": inner_data.get("data").get("type"),
                         "fileName": inner_data.get("data").get("fileName"),
                         "tags": [],
