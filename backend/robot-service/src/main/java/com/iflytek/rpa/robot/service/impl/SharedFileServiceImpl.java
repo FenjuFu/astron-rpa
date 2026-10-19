@@ -170,6 +170,7 @@ public class SharedFileServiceImpl extends ServiceImpl<SharedFileDao, SharedFile
         return authList.stream().anyMatch(auth -> "文件管理".equals(auth.getName()));
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public AppResponse<?> addSharedFileInfo(HttpServletRequest request, SharedFileDto dto) throws NoLoginException {
         if (!hasFileManagementPermission(request)) {
