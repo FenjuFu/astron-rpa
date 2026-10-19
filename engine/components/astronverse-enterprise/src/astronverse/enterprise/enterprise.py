@@ -95,7 +95,7 @@ class Enterprise:
         )
         # 检查文件是否存在
         if not (os.path.exists(file_path) and os.path.isfile(file_path)):
-            return BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
+            raise BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
 
         try:
             # 准备文件上传
