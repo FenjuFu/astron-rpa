@@ -27,6 +27,7 @@ services:
       - ./volumes/mysql/upgrade_file_tenant_isolation.sql:/docker-entrypoint-initdb.d/07-upgrade_file_tenant_isolation.sql
     command: |
       bash -c "
+      rm -f /tmp/rpa-init-done &&
       cp /etc/mysql/conf.d/my.cnf /etc/mysql/conf.d/my1.cnf &&
       
       (
@@ -45,25 +46,22 @@ services:
         done;
         
         echo 'All scripts finished.';
+        touch /tmp/rpa-init-done;
       ) &
       
       docker-entrypoint.sh mysqld
       "
     healthcheck:
+      # 增量脚本（含文件归属回填）执行完才视为健康：atlas 与后端服务随后才启动，不会与回填并发
       test:
         [
-          'CMD',
-          'mysqladmin',
-          'ping',
-          '-h',
-          'localhost',
-          '-u${DATABASE_USERNAME}',
-          '-p${DATABASE_PASSWORD}',
+          'CMD-SHELL',
+          "mysqladmin ping -h localhost -u'${DATABASE_USERNAME}' -p'${DATABASE_PASSWORD}' && test -f /tmp/rpa-init-done",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 300s
     networks:
       - rpa-opensource-network
 
