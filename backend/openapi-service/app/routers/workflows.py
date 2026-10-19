@@ -124,15 +124,17 @@ async def get_workflows(
     "/get/{project_id}",
     response_model=StandardResponse,
     summary="获取指定工作流详情",
-    description="获取指定project_id的工作流详细信息",
+    description="获取当前用户指定project_id的工作流详细信息",
 )
 async def get_workflow(
     project_id: str = Path(..., description="项目ID"),
+    user_id: str = Depends(get_user_id_with_fallback),
     service: WorkflowService = Depends(get_workflow_service),
 ):
     """获取工作流详情"""
     try:
-        workflow = await service.get_workflow(project_id, None)
+        # 只返回当前用户的工作流；其他用户的工作流与不存在的处理方式相同，避免泄露
+        workflow = await service.get_workflow(project_id, user_id)
         if not workflow:
             # 改成成功返回code，前端处理
             return StandardResponse(
