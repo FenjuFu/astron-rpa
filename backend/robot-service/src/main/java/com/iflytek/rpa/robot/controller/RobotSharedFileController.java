@@ -1,11 +1,13 @@
 package com.iflytek.rpa.robot.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.iflytek.rpa.robot.entity.dto.SharedFileDto;
 import com.iflytek.rpa.robot.entity.dto.SharedFilePageDto;
 import com.iflytek.rpa.robot.entity.vo.SharedFilePageVo;
 import com.iflytek.rpa.robot.service.SharedFileService;
 import com.iflytek.rpa.utils.exception.NoLoginException;
 import com.iflytek.rpa.utils.response.AppResponse;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,5 +37,19 @@ public class RobotSharedFileController {
     public AppResponse<IPage<SharedFilePageVo>> getSharedFilePageList(@RequestBody SharedFilePageDto queryDto)
             throws NoLoginException {
         return sharedFileService.getSharedFilePageList(queryDto);
+    }
+
+    /**
+     * 新增共享文件信息（文件已通过 resource-service 的 share-file-upload 上传）
+     *
+     * @param request 请求
+     * @param dto 共享文件信息
+     * @return 新增结果
+     * @throws NoLoginException 如果用户未登录
+     */
+    @PostMapping("/addSharedFileInfo")
+    public AppResponse<?> addSharedFileInfo(HttpServletRequest request, @RequestBody SharedFileDto dto)
+            throws NoLoginException {
+        return sharedFileService.addSharedFileInfo(request, dto);
     }
 }

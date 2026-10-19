@@ -87,7 +87,7 @@ class Enterprise:
     )
     def upload_to_sharefolder(file_path: PATH = ""):
         """Upload file to shared folder"""
-        upload_url = "http://127.0.0.1:{}/api/resource/file/shared-file-upload".format(
+        upload_url = "http://127.0.0.1:{}/api/resource/file/share-file-upload".format(
             atomicMg.cfg().get("GATEWAY_PORT") if atomicMg.cfg().get("GATEWAY_PORT") else "13159"
         )
         update_info_url = "http://127.0.0.1:{}/api/robot/robot-shared-file/addSharedFileInfo".format(
@@ -95,7 +95,7 @@ class Enterprise:
         )
         # 检查文件是否存在
         if not (os.path.exists(file_path) and os.path.isfile(file_path)):
-            return BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
+            raise BaseException(PATH_INVALID_FORMAT.format(file_path), "请重新输入正确的文件路径")
 
         try:
             # 准备文件上传
@@ -119,7 +119,7 @@ class Enterprise:
                             "可能用了不支持的扩展名！",
                         )
                     info_data = {
-                        "fileId": inner_data.get("data").get("fileid"),
+                        "fileId": inner_data.get("data").get("fileId"),
                         "fileType": inner_data.get("data").get("type"),
                         "fileName": inner_data.get("data").get("fileName"),
                         "tags": [],
