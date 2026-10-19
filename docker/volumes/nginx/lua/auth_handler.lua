@@ -10,22 +10,41 @@ local ngx_HTTP_OK = ngx.HTTP_OK
 local ngx_HTTP_UNAUTHORIZED = ngx.HTTP_UNAUTHORIZED
 local ngx_HTTP_INTERNAL_SERVER_ERROR = ngx.HTTP_INTERNAL_SERVER_ERROR
 
+-- 上游服务直接信任的身份头（ai-service / openapi-service 优先读取 X-User-Id，其次 user_id）。
+-- 只能由本脚本在认证成功后设置，客户端自带的值必须先清除。
+local IDENTITY_HEADERS = {"user_id", "user-id", "X-User-Id", "user-info"}
+
+local function clear_identity_headers()
+    for _, header_name in ipairs(IDENTITY_HEADERS) do
+        ngx.req.clear_header(header_name)
+    end
+end
+
 -- 定义一个函数来处理认证逻辑
 local function authenticate_user()
     local ctx_type = ngx.var.context_type or "HTTP"
     ngx_log(ngx_DEBUG, "Starting authentication for " .. ctx_type .. " request. URI: " .. ngx.var.uri)
 
+    -- 在任何可能放行到上游的分支之前清除客户端伪造的身份头
+    clear_identity_headers()
+
     local session_token = nil
     local cookie_type = nil -- 记录从哪个 cookie 获取的 token (SESSION 或 JSESSIONID)
 
-    -- 1. 尝试从 Authorization header 获取 Bearer Token
+    -- 1. 检查 Authorization header 中的 Bearer Token
+    -- 网关不校验 Bearer Token。只有 location 显式设置 $auth_bearer_passthrough 为 "on"
+    -- （openapi-service 自行校验 Bearer API Key）时才跳过会话认证，且不设置任何身份头；
+    -- 其他 location 忽略 Bearer Token，继续进行会话认证。
     local authorization_header = ngx.req.get_headers()["authorization"] -- 注意，headers 都是小写键
     if authorization_header then
         ngx_log(ngx_DEBUG, "Authorization header is present.")
-        local _, _, token_type, token_value = string.find(authorization_header, "^(%S+)%s+(.+)$")
+        local _, _, token_type = string.find(authorization_header, "^(%S+)%s+(.+)$")
         if token_type and token_type:lower() == "bearer" then
-            -- session_token = token_value
-            return
+            if ngx.var.auth_bearer_passthrough == "on" then
+                ngx_log(ngx_DEBUG, "Bearer token present, skipping session auth; upstream validates the API key.")
+                return
+            end
+            ngx_log(ngx_DEBUG, "Bearer token is not accepted for this location, falling back to session auth.")
         else
             ngx_log(ngx_DEBUG, "Authorization header is present but not Bearer type, type: " .. (token_type or "nil"))
         end
