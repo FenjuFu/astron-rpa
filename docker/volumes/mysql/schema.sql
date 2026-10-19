@@ -871,7 +871,10 @@ CREATE TABLE `file` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `deleted` int(11) DEFAULT 0 COMMENT '逻辑删除标志位',
   `file_name` varchar(1000) DEFAULT NULL COMMENT '文件真实名称',
-  PRIMARY KEY (`id`)
+  `tenant_id` char(36) DEFAULT NULL COMMENT '租户id',
+  `creator_id` char(36) DEFAULT NULL COMMENT '上传者id',
+  PRIMARY KEY (`id`),
+  KEY `idx_file_id_tenant_id` (`file_id`,`tenant_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=283 DEFAULT CHARSET=utf8mb4 COMMENT='文件表';
 
 

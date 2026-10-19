@@ -11,11 +11,13 @@
         <result column="update_time" property="updateTime"/>
         <result column="deleted" property="deleted"/>
         <result column="file_name" property="fileName"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="creator_id" property="creatorId"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, file_id, path, create_time, update_time, deleted, file_name
+        id, file_id, path, create_time, update_time, deleted, file_name, tenant_id, creator_id
     </sql>
 
 </mapper>

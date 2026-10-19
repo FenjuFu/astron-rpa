@@ -15,6 +15,9 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface FileMapper extends BaseMapper<File> {
 
-    @Select("select * from file where deleted = 0 and file_id = #{fileId}")
-    File getFile(@Param("fileId") String fileId);
+    /**
+     * 按文件ID查询当前租户的文件，不属于该租户的文件视为不存在
+     */
+    @Select("select * from file where deleted = 0 and file_id = #{fileId} and tenant_id = #{tenantId}")
+    File getFile(@Param("fileId") String fileId, @Param("tenantId") String tenantId);
 }

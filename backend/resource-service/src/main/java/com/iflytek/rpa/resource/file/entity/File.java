@@ -58,4 +58,16 @@ public class File {
      */
     @TableField("file_name")
     private String fileName;
+
+    /**
+     * 租户id
+     */
+    @TableField("tenant_id")
+    private String tenantId;
+
+    /**
+     * 上传者id
+     */
+    @TableField("creator_id")
+    private String creatorId;
 }
